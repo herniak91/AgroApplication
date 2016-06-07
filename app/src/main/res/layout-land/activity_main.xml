@@ -21,9 +21,9 @@
         android:layout_alignParentBottom="true">
 
         <RelativeLayout
-            android:layout_width="match_parent"
+            android:layout_width="253dp"
             android:layout_height="wrap_content"
-            android:layout_weight="0.36">
+            android:layout_weight="0.70">
 
             <ImageView
                 android:layout_width="60dp"
@@ -32,10 +32,10 @@
                 android:contentDescription="@string/wheater_image"
                 android:src="@drawable/cloudly"
                 android:padding="5dp"
-                android:layout_marginTop="23dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_below="@+id/textView8"
+                android:layout_alignLeft="@+id/textView8"
+                android:layout_alignStart="@+id/textView8"
+                android:layout_marginTop="18dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -43,18 +43,27 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="@string/clima_location"
                 android:id="@+id/textView8"
-                android:layout_alignTop="@+id/imageView2"
-                android:layout_alignLeft="@+id/tableLayout"
-                android:layout_alignStart="@+id/tableLayout" />
+                android:layout_below="@+id/imageButton2"
+                android:layout_alignLeft="@+id/imageButton2"
+                android:layout_alignStart="@+id/imageButton2" />
+
+            <ImageButton
+                android:layout_width="fill_parent"
+                android:layout_height="75dp"
+                android:id="@+id/imageButton2"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" />
 
             <TableLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tableLayout"
-                android:layout_below="@+id/textView8"
-                android:layout_toRightOf="@+id/imageView2"
-                android:layout_toEndOf="@+id/imageView2"
-                android:layout_marginTop="10dp">
+                android:layout_below="@+id/imageView2"
+                android:layout_alignLeft="@+id/imageView2"
+                android:layout_alignStart="@+id/imageView2">
 
                 <TableRow
                     android:layout_width="match_parent"
@@ -124,37 +133,7 @@
 
             </TableLayout>
 
-            <fragment
-                android:layout_width="250dp"
-                android:layout_height="100dp"
-                android:name="com.google.android.gms.maps.MapFragment"
-                android:id="@+id/mapFragment"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="52dp" />
-
         </RelativeLayout>
 
-        <TableLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.76">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"></TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </TableRow>
-        </TableLayout>
     </LinearLayout>
 </RelativeLayout>
