@@ -3,12 +3,15 @@ package com.app.android.hwilliams.agroapp;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.widget.Button;
 
 import com.app.android.hwilliams.agroapp.fragment.ClimaFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends FragmentActivity {
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +31,15 @@ public class MainActivity extends FragmentActivity {
         FragmentManager fragManager = getFragmentManager();
         Fragment climaFrag = fragManager.findFragmentById(R.id.frag_clima);
         Fragment cotizFrag = fragManager.findFragmentById(R.id.frag_cotiz);
+
+        Button buscar_btn = (Button) findViewById(R.id.home_buscar_btn);
+        buscar_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, BuscarActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
 
     }
 
