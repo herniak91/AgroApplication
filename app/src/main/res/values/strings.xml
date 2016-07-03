@@ -4,7 +4,9 @@
     <string name="info_ubicacion">Alberti</string>
     <string name="wheater_image">Wheater image</string>
     <string name="clima_location">Capital Federal, Buenos Aires</string>
+    <string name="shared_file_name">com.app.android.hwilliams.agroapp.Properties</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="perfil_bottom_siguiente">Siguiente</string>
+    <string name="perfil_bottom_editar">Editar</string>
+    <string name="perfil_password_editar">Cambiar Contraseña</string>
 </resources>

@@ -1,13 +1,15 @@
-package com.app.android.hwilliams.agroapp;
+package com.app.android.hwilliams.agroapp.activity;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 
-public class BuscarActivity extends ActionBarActivity {
+import com.app.android.hwilliams.agroapp.R;
+
+public class Detalle extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_buscar);
+        setContentView(R.layout.activity_detalle);
     }
 }

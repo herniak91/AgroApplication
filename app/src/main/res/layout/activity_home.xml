@@ -7,38 +7,27 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.app.android.hwilliams.agroapp.MainActivity">
+    tools:context=".activity.Home">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_centerHorizontal="true">
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/common_header"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_gravity="center_horizontal"
-            android:baselineAligned="false"
-            android:layout_weight="0.1">
-
-            <fragment
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:name="com.app.android.hwilliams.agroapp.fragment.ClimaFragment"
-                android:id="@+id/frag_clima_land"
-                android:layout_weight="0.6" />
-
-            <fragment
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:name="com.app.android.hwilliams.agroapp.fragment.CotizacionFragment"
-                android:id="@+id/frag_cotiz_land"
-                android:layout_weight="0.4" />
-        </LinearLayout>
+            android:layout_weight="1"></LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -49,16 +38,17 @@
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Mi Cuenta"
-                android:id="@+id/button"
+                android:text="Mis Ofertas"
+                android:id="@+id/home_admin_btn"
                 android:layout_weight="0.5" />
 
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Buscar"
-                android:id="@+id/button2"
+                android:id="@+id/home_buscar_btn"
                 android:layout_weight="0.5" />
         </LinearLayout>
     </LinearLayout>
+
 </RelativeLayout>
