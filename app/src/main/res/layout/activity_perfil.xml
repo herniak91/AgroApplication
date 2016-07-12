@@ -23,10 +23,10 @@
             android:layout_gravity="center_horizontal" />
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords|textPersonName"
                 android:ems="10"
                 android:id="@+id/perfil_nameText" />
 
@@ -54,7 +54,7 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
+                android:inputType="textCapWords|textPersonName"
                 android:ems="10"
                 android:id="@+id/perfil_apellidoText" />
 
@@ -88,6 +88,26 @@
                 android:ems="10"
                 android:id="@+id/perfil_emailText" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="Editar"
+                android:id="@+id/perfil_editar"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="Cambiar Contraseña"
+                android:id="@+id/perfil_ChangePass"
+                android:layout_weight="1" />
         </LinearLayout>
 
         <Button

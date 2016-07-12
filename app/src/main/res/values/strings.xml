@@ -4,9 +4,23 @@
     <string name="info_ubicacion">Alberti</string>
     <string name="wheater_image">Wheater image</string>
     <string name="clima_location">Capital Federal, Buenos Aires</string>
-    <string name="shared_file_name">com.app.android.hwilliams.agroapp.Properties</string>
+    <string name="shared_file_name">agroapp.Properties</string>
 
     <string name="perfil_bottom_siguiente">Siguiente</string>
     <string name="perfil_bottom_editar">Editar</string>
     <string name="perfil_password_editar">Cambiar Contraseña</string>
+    <string name="title_activity_sdsadasdas">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>
