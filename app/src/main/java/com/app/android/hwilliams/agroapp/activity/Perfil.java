@@ -17,12 +17,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.android.hwilliams.agroapp.R;
+import com.app.android.hwilliams.agroapp.activity.superclass.Profile;
+import com.app.android.hwilliams.agroapp.util.CommonsUtils;
+import com.app.android.hwilliams.agroapp.util.JsonPost;
 import com.app.android.hwilliams.agroapp.util.Params;
+import com.app.android.hwilliams.agroapp.util.PerfilUtils;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public class Perfil extends ActionBarActivity {
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class Perfil extends Profile {
 
     EditText nombreText, apellidoText, telefonoText, emailText;
     Button siguienteBtn, editar, cambiarPass;
@@ -39,7 +48,7 @@ public class Perfil extends ActionBarActivity {
         siguienteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(fieldsCheck()){
+                if(PerfilUtils.fieldsCheck(nombreText, apellidoText, telefonoText, emailText, getApplicationContext())){
                     Intent intent = new Intent(Perfil.this, PerfilPassword.class);
                     intent.putExtra("usuario",nombreText.getText().toString());
                     intent.putExtra("apellido", apellidoText.getText().toString());
@@ -58,10 +67,34 @@ public class Perfil extends ActionBarActivity {
         editar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                enableFields();
+                if (!areFieldsEnabled()){
+                    enableFields(true);
+                    editar.setText("Finalizar");
+                    cambiarPass.setVisibility(View.GONE);
+                }else{
+                    enableFields(false);
+                    editar.setText("Editar");
+                    cambiarPass.setVisibility(View.VISIBLE);
+                    JSONObject obj = new JSONObject();
+                    try {
+                        obj.put("username", getUsername());
+                        obj.put("nombre", nombreText.getText().toString());
+                        obj.put("apellido", apellidoText.getText().toString());
+                        obj.put("telefono", telefonoText.getText().toString());
+                        obj.put("email", emailText.getText().toString());
+                    } catch (Exception e) {
+                        showErrorDialog("Error actualizando los datos. Intentelo nuevamente mas tarde");
+                    }
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put(JsonPost.URL, Params.URL_PERFIL_ACTUALIZAR);
+                    map.put(JsonPost.JSON, obj.toString());
+                    new AsyncPost().execute(map);
+                }
+
             }
         });
 
+        cambiarPass = (Button) findViewById(R.id.perfil_ChangePass);
         cambiarPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +104,10 @@ public class Perfil extends ActionBarActivity {
                 Perfil.this.startActivityForResult(intent, PerfilPassword.PASSWORD_CHANGE);
             }
         });
+    }
+
+    private boolean areFieldsEnabled() {
+        return nombreText.isEnabled();
     }
 
     @Override
@@ -91,7 +128,7 @@ public class Perfil extends ActionBarActivity {
             populateFields(getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE));
         }
         if(requestCode == PerfilPassword.PASSWORD_CHANGE && resultCode == Activity.RESULT_OK){
-            showToast("Contraseña actualizada");
+            CommonsUtils.showToast("Contraseña actualizada", getApplicationContext());
         }
         if( resultCode != Activity.RESULT_OK){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -110,30 +147,6 @@ public class Perfil extends ActionBarActivity {
     public void startActivityForResult(Intent intent, int requestCode) {
         intent.putExtra("requestCode", requestCode);
         super.startActivityForResult(intent, requestCode);
-    }
-
-    private boolean fieldsCheck() {
-        if("".matches(nombreText.getText().toString())){
-            showToast("Es necesario ingresar un nombre");
-            nombreText.requestFocus();
-            return false;
-        }
-        if("".matches(apellidoText.getText().toString())){
-            showToast("Es necesario ingresar un apellido");
-            apellidoText.requestFocus();
-            return false;
-        }
-        if("".matches(telefonoText.getText().toString())){
-            showToast("Es necesario ingresar un teléfono");
-            telefonoText.requestFocus();
-            return false;
-        }
-        if( !"".matches(emailText.getText().toString()) && !isEmailValid(emailText.getText().toString()) ){
-            showToast("Ingrese un email valido");
-            emailText.requestFocus();
-            return false;
-        }
-        return true;
     }
 
     private void populateFields(SharedPreferences sharedPref) {
@@ -157,18 +170,20 @@ public class Perfil extends ActionBarActivity {
         apellidoText.setText("");
         telefonoText.setText("");
         emailText.setText("");
-        enableFields();
+        enableFields(true);
         siguienteBtn.setVisibility(View.VISIBLE);
     }
 
-    private void enableFields(){
-        nombreText.setEnabled(true);
-        apellidoText.setEnabled(true);
-        telefonoText.setEnabled(true);
-        emailText.setEnabled(true);
+    private void enableFields(boolean status){
+        nombreText.setEnabled(status);
+        apellidoText.setEnabled(status);
+        telefonoText.setEnabled(status);
+        emailText.setEnabled(status);
     }
 
     private void showLoginView() {
+        editar.setVisibility(View.GONE);
+        cambiarPass.setVisibility(View.GONE);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Login");
         builder.setNegativeButton("Crear Usuario", new DialogInterface.OnClickListener() {
@@ -188,14 +203,6 @@ public class Perfil extends ActionBarActivity {
             }
         });
         builder.show();
-    }
-
-    private boolean isEmailValid(String email) {
-        return email.contains("@") && email.contains(".") && !email.contains(" ");
-    }
-
-    public void showToast(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
 }

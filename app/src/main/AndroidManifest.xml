@@ -3,6 +3,7 @@
     package="com.app.android.hwilliams.agroapp">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -24,6 +25,7 @@
         <activity android:name=".activity.ApplicationLoader">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -42,7 +44,9 @@
         <activity android:name=".activity.Carga" />
         <activity android:name=".activity.Detalle" />
         <activity android:name=".activity.PerfilPassword" />
-        <activity android:name=".activity.Home" />
+        <activity android:name=".activity.Home"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.superclass.Profile" />
     </application>
 
 </manifest>

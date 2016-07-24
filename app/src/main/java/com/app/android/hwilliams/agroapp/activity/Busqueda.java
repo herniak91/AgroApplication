@@ -20,8 +20,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Busqueda extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener{
 
-    private GoogleApiClient client;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

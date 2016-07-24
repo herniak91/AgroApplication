@@ -23,13 +23,339 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true" />
 
-        <LinearLayout
-            android:orientation="vertical"
+        <TabHost
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/home_tabHost"
             android:layout_weight="1">
 
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"></TabWidget>
+
+                <FrameLayout
+                    android:id="@android:id/tabcontent"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:id="@+id/home_tabClima"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1"
+                            android:useDefaultMargins="false"
+                            android:columnOrderPreserved="false"
+                            android:rowOrderPreserved="false">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:id="@+id/homeClima_img"
+                                android:layout_column="0"
+                                android:layout_row="1"
+                                android:layout_rowSpan="3" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:id="@+id/homeClima_temp"
+                                android:text="temp"
+                                android:layout_below="@+id/homeClima_icon"
+                                android:layout_alignParentLeft="true"
+                                android:layout_alignParentStart="true"
+                                android:layout_column="1"
+                                android:layout_row="1"
+                                android:textSize="50dp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:id="@+id/homeClima_tempAvrg"
+                                android:text="avrg"
+                                android:layout_alignTop="@+id/homeClima_tempAvrg"
+                                android:layout_toRightOf="@+id/homeClima_tempAvrg"
+                                android:layout_toEndOf="@+id/homeClima_tempAvrg"
+                                android:layout_column="4"
+                                android:layout_row="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Viento "
+                                android:id="@+id/textView27"
+                                android:layout_row="2"
+                                android:layout_column="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:id="@+id/homeClima_viento"
+                                android:layout_centerVertical="true"
+                                android:layout_alignRight="@+id/homeClima_tempAvrg"
+                                android:layout_alignEnd="@+id/homeClima_tempAvrg"
+                                android:layout_column="2"
+                                android:layout_row="2"
+                                android:text="wind" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:id="@+id/homeClima_vientoDir"
+                                android:layout_centerVertical="true"
+                                android:layout_centerHorizontal="true"
+                                android:layout_column="3"
+                                android:layout_row="2"
+                                android:text="dir" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Humedad "
+                                android:id="@+id/textView26"
+                                android:layout_below="@+id/homeClima_viento"
+                                android:layout_alignParentLeft="true"
+                                android:layout_alignParentStart="true"
+                                android:layout_column="1"
+                                android:layout_row="3" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Hum"
+                                android:id="@+id/homeClima_humedad"
+                                android:layout_column="2"
+                                android:layout_row="3" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:text="Actualizado a las "
+                                android:id="@+id/textView21"
+                                android:layout_row="0"
+                                android:layout_column="8" />
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceSmall"
+                                    android:id="@+id/homeClima_timeUpdate"
+                                    android:layout_row="0"
+                                    android:layout_column="9"
+                                    android:text="update" />
+
+                                <ProgressBar
+                                    style="?android:attr/progressBarStyleSmall"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/homeClima_loader"
+                                    android:indeterminate="true"
+                                    android:background="#00ffffff"
+                                    android:visibility="gone" />
+                            </FrameLayout>
+
+                        </GridLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="fill_parent"
+                            android:layout_weight="1">
+
+                            <GridLayout
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_gravity="center">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/homeClima_day1_img"
+                                    android:layout_gravity="center_horizontal|top"
+                                    android:layout_column="0"
+                                    android:layout_row="0" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day1_day"
+                                    android:layout_column="0"
+                                    android:layout_row="1"
+                                    android:textAlignment="center" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day1_temp"
+                                    android:layout_column="0"
+                                    android:layout_row="2"
+                                    android:textAlignment="center" />
+
+                            </GridLayout>
+
+                            <GridLayout
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_gravity="center">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/homeClima_day2_img"
+                                    android:layout_gravity="center_horizontal|top"
+                                    android:layout_column="0"
+                                    android:layout_row="0" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day2_day"
+                                    android:layout_column="0"
+                                    android:layout_row="1"
+                                    android:textAlignment="center" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day2_temp"
+                                    android:layout_column="0"
+                                    android:layout_row="2"
+                                    android:textAlignment="center" />
+
+                            </GridLayout>
+
+                            <GridLayout
+                                android:layout_width="fill_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_gravity="center">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:id="@+id/homeClima_day3_img"
+                                    android:layout_gravity="center_horizontal|top"
+                                    android:layout_column="0"
+                                    android:layout_row="0" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day3_day"
+                                    android:layout_column="0"
+                                    android:layout_row="1"
+                                    android:textAlignment="center" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="?android:attr/textAppearanceMedium"
+                                    android:id="@+id/homeClima_day3_temp"
+                                    android:layout_column="0"
+                                    android:layout_row="2"
+                                    android:textAlignment="center" />
+
+                            </GridLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/home_tabCotizacion"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="10dp"
+                            android:paddingTop="15dp">
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Dolar"
+                                android:id="@+id/textView25"
+                                android:textStyle="bold"
+                                android:layout_weight="3" />
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Compra:"
+                                android:id="@+id/home_dolarCompra"
+                                android:layout_weight="2"
+                                android:textAlignment="center" />
+
+                            <TextView
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="Venta:"
+                                android:id="@+id/home_dolarVenta"
+                                android:layout_weight="2"
+                                android:textAlignment="center" />
+
+                        </LinearLayout>
+
+                        <Spinner
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/spinner_mercados"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginBottom="5dp" />
+
+                        <TableLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:id="@+id/home_tablaCotizacion">
+
+                        </TableLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/home_tabInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"></LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </TabHost>
 
         <LinearLayout
             android:orientation="horizontal"

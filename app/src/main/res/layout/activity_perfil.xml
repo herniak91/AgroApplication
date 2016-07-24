@@ -98,15 +98,15 @@
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="Editar"
-                android:id="@+id/perfil_editar"
+                android:text="Cambiar Contraseña"
+                android:id="@+id/perfil_ChangePass"
                 android:layout_weight="1" />
 
             <Button
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:text="Cambiar Contraseña"
-                android:id="@+id/perfil_ChangePass"
+                android:text="Editar"
+                android:id="@+id/perfil_editar"
                 android:layout_weight="1" />
         </LinearLayout>
 

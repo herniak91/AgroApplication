@@ -4,27 +4,44 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
 import com.app.android.hwilliams.agroapp.R;
+import com.app.android.hwilliams.agroapp.admin.AdminParque;
+import com.app.android.hwilliams.agroapp.admin.AdminMaquina;
 import com.app.android.hwilliams.agroapp.util.Params;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApplicationLoader extends ActionBarActivity {
+    private int APP_STARTED = 1;
+    private int APP_NOT_STARTED = -1;
+    private int APP_CURRENT_STATUS = 0;
 
     private ProgressBar progressBar;
 
@@ -41,7 +58,13 @@ public class ApplicationLoader extends ActionBarActivity {
         boolean isConnected = isConnected();
         if(isConnected){
             progressBar.setVisibility(View.VISIBLE);
-            new CheckServerAvailable().execute();
+            SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE);
+            boolean isUserLoggedIn = sharedPref.contains(Params.PREF_USERNAME);
+            if(isUserLoggedIn){
+                new CheckServerAvailable().execute(sharedPref.getString(Params.PREF_USERNAME, ""));
+            }else{
+                new CheckServerAvailable().execute();
+            }
         }else{
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Sin conexión");
@@ -57,11 +80,6 @@ public class ApplicationLoader extends ActionBarActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
     private boolean isConnected(){
         ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if(cm.getActiveNetworkInfo() == null)
@@ -69,34 +87,78 @@ public class ApplicationLoader extends ActionBarActivity {
         return true;
     }
 
-    private void startApplication() {
+    private void startApplication(JSONObject json) {
         Intent intent = new Intent(this, Home.class);
-        this.startActivity(intent);
+        try {
+            JSONObject response = (JSONObject) json.get("response");
+            intent.putExtra(Home.EXTRA_COTIZACIONES, ((JSONArray)response.get("cotizaciones")).toString());
+            intent.putExtra(Home.EXTRA_DOLAR, ((JSONObject)response.get("dolar")).toString());
+            intent.putExtra(Home.EXTRA_MERCADOS, ((JSONArray)response.get("mercados")).toString());
+            intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, (ArrayList<? extends Parcelable>) getAdminData(response.get("admin").toString()));
+        }catch (Exception e){
+            // Nothing happens
+        }
+        this.startActivityForResult(intent, 0);
     }
 
-    private class CheckServerAvailable extends AsyncTask<Object,Integer,Integer>{
+    private List<AdminParque> getAdminData(String jsonAdmin) throws JSONException {
+        List<AdminParque> groupList = new ArrayList<>();
+        JSONArray list = new JSONArray(jsonAdmin);
+        for (int i = 0; i < list.length(); i++){
+            JSONObject obj = list.getJSONObject(i);
+            JSONObject groupJson = obj.getJSONObject("parque");
+            List<AdminMaquina> items = new ArrayList<>();
+            JSONArray itemsJsonArray = obj.getJSONArray("maquinas");
+            for (int a = 0; a < itemsJsonArray.length(); a++){
+                JSONObject maquinaJson = itemsJsonArray.getJSONObject(a);
+                items.add(new AdminMaquina(maquinaJson.getInt("id"), maquinaJson.getString("tipo"), maquinaJson.getString("marca"), maquinaJson.getString("modelo"), maquinaJson.getString("atributos")));
+            }
+            AdminParque groupObj = new AdminParque(groupJson.getInt("id"), groupJson.getString("estado"), groupJson.getString("rubro"), items);
+            groupList.add(groupObj);
+        }
+        return groupList;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        super.onBackPressed();
+    }
+
+    private class CheckServerAvailable extends AsyncTask<String,Integer,JSONObject>{
 
         @Override
-        protected Integer doInBackground(Object... params) {
+        protected JSONObject doInBackground(String... params) {
             HttpParams httpParameters = new BasicHttpParams();
-            int timeoutConnection  = 5000;
+            int timeoutConnection  = 25000;
             HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection );
             HttpClient httpclient = new DefaultHttpClient(httpParameters);
-            HttpPost httppost = new HttpPost(Params.URL_APP);
+            HttpPost httppost = new HttpPost(Params.URL_INITIAL);
             try {
-                httpclient.execute(httppost);
-                return 0;
-            } catch (Exception e) {
-                return 1;
+                if(params != null && params.length > 0){
+                    List nameValuePairs = new ArrayList();
+                    nameValuePairs.add(new BasicNameValuePair("username", params[0]));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                }
+                HttpResponse response = httpclient.execute(httppost);
+                HttpEntity entity = response.getEntity();
+                String responseString = EntityUtils.toString(entity, "UTF-8");
+                return new JSONObject(responseString);
+            } catch (ClientProtocolException e){
+                return null;
+            } catch (IOException e) {
+                return null;
+            } catch (JSONException e) {
+                return null;
             }
         }
 
         @Override
-        protected void onPostExecute(Integer integer) {
-            super.onPostExecute(integer);
-            if(integer.equals(0)){
+        protected void onPostExecute(JSONObject json) {
+            super.onPostExecute(json);
+            if(json != null){
                 progressBar.setVisibility(View.GONE);
-                startApplication();
+                startApplication(json);
             }else{
                 AlertDialog.Builder builder = new AlertDialog.Builder(ApplicationLoader.this);
                 builder.setTitle("Problema de conexión");
