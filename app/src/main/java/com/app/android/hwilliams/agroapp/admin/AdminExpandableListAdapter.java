@@ -19,20 +19,18 @@ import java.util.List;
 /**
  * Created by Hernan on 7/23/2016.
  */
-public class AdminExpandableList extends BaseExpandableListAdapter {
+public class AdminExpandableListAdapter extends BaseExpandableListAdapter {
 
     private List<AdminListGroup> groups;
 
-    private Activity activity;
     private LayoutInflater inflater;
 
-    public AdminExpandableList(List<AdminListGroup> groups){
+    public AdminExpandableListAdapter(List<AdminListGroup> groups){
         this.groups = groups;
     }
 
-    public void setInflater(LayoutInflater inflater, Activity activity) {
+    public void setInflater(LayoutInflater inflater) {
         this.inflater = inflater;
-        this.activity = activity;
     }
 
     @Override

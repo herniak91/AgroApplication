@@ -2,12 +2,15 @@ package com.app.android.hwilliams.agroapp.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 
 import com.app.android.hwilliams.agroapp.R;
-import com.app.android.hwilliams.agroapp.admin.AdminExpandableList;
+import com.app.android.hwilliams.agroapp.admin.AdminExpandableListAdapter;
 import com.app.android.hwilliams.agroapp.admin.AdminListGroup;
 import com.app.android.hwilliams.agroapp.admin.AdminParque;
 
@@ -23,6 +26,8 @@ public class Administracion extends Activity {
     ExpandableListView list;
     int previousGroup = -1;
 
+    Button cargar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,8 +36,8 @@ public class Administracion extends Activity {
 
         List<AdminParque> parques = getIntent().getParcelableArrayListExtra(EXTRA_GROUPS);
         List<AdminListGroup> groups = organizarParques(parques);
-        AdminExpandableList adapter = new AdminExpandableList(groups);
-        adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE), this);
+        AdminExpandableListAdapter adapter = new AdminExpandableListAdapter(groups);
+        adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 
         list.setAdapter(adapter);
         list.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
@@ -43,6 +48,15 @@ public class Administracion extends Activity {
                     list.collapseGroup(previousGroup);
                 }
                 previousGroup = groupPosition;
+            }
+        });
+
+        cargar = (Button) findViewById(R.id.admin_cargar);
+        cargar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Administracion.this, Carga.class);
+                startActivity(intent);
             }
         });
     }

@@ -1,12 +1,17 @@
 package com.app.android.hwilliams.agroapp.activity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,14 +54,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Home extends Activity {
+public class Home extends Activity  implements LocationListener{
     public static final String EXTRA_COTIZACIONES = "cotizaciones";
     public static final String EXTRA_MERCADOS = "mercados";
     public static final String EXTRA_DOLAR = "dolar";
 
     private long NEXT_TIME_TO_CKECK = 0;
+    private boolean WAS_USER_ASKED = false;
     private LocationManager mLocationManager;
-    Location currentLocation;
+    private Location userLocation;
 
     Button buscar_btn,admin_btn;
     TabHost tabHost;
@@ -64,11 +70,9 @@ public class Home extends Activity {
     Spinner mercadosOpt;
     Map<String, List<TableRow>> rowMap = new HashMap<>();
     // Clima
-    TextView climaActualTemp, climaActualTempAvrg, climaActualViento, climaActualDirViento, climaActualHumedad, homeClimaUpdate;
+    TextView climaActualTemp, climaActualTempAvrg, climaActualViento, climaActualDirViento, climaActualHumedad, homeClimaUpdate, dia1Dia, dia1Temp, dia2Dia, dia2Temp, dia3Dia, dia3Temp;
     ImageView climaActualIcon;
     private ProgressBar climaLoader;
-
-    TextView dia1Dia, dia1Temp, dia2Dia, dia2Temp, dia3Dia, dia3Temp;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,8 +85,7 @@ public class Home extends Activity {
         setUpTabClima();
         setUpTabCotizaciones();
         setUpTabInformacion();
-        setUpTabsLayout();
-
+        ClimaUtils.setUpTabsLayout(tabHost);
 
         SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE);
         boolean isUserLoggedIn = sharedPref.contains(Params.PREF_USERNAME);
@@ -118,6 +121,7 @@ public class Home extends Activity {
 
         climaLoader = (ProgressBar) findViewById(R.id.homeClima_loader);
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 100, this);
         ForecastConfiguration configuration =
                 new ForecastConfiguration.Builder(BuildConfig.API_KEY)
                         .setDefaultUnit(Unit.CA)
@@ -129,10 +133,17 @@ public class Home extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(!WAS_USER_ASKED && !mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+            askUserForSettings();
+        }
+        actualizarInfoClima();
+    }
+
+    private void actualizarInfoClima(){
         if(ClimaUtils.isTimeToAskWheather(NEXT_TIME_TO_CKECK)){
             homeClimaUpdate.setVisibility(View.GONE);
             climaLoader.setVisibility(View.VISIBLE);
-            currentLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location currentLocation = getLocation();
             ForecastClient.getInstance().getForecast(currentLocation.getLatitude(),currentLocation.getLongitude(), new Callback<Forecast>() {
                 @Override
                 public void onResponse(Call<Forecast> forecastCall, Response<Forecast> response) {
@@ -153,6 +164,37 @@ public class Home extends Activity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        WAS_USER_ASKED = true;
+    }
+
+    private Location getLocation(){
+        return userLocation != null ? userLocation : getDefaultLocation();
+    }
+
+    private void askUserForSettings(){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(Home.this);
+        dialog.setTitle("Su ubicación no pudo ser obtenida");
+        dialog.setMessage("Modifique su configuración de ubicación o utilice la ubicación por defecto (Alberti, Buenos Aires)");
+        dialog.setPositiveButton("Cambiar configuración", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivityForResult(myIntent, 1);
+                paramDialogInterface.dismiss();
+            }
+        });
+        dialog.setNegativeButton("Ignorar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                WAS_USER_ASKED = true;
+            }
+        });
+        dialog.show();
     }
 
     public void showClimaInfoOk(Forecast forecast){
@@ -262,15 +304,35 @@ public class Home extends Activity {
         tabHost.addTab(tabInfo);
     }
 
-    private void setUpTabsLayout() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        tabHost.getTabWidget().getChildTabViewAt(0).setLayoutParams(params);
-        tabHost.getTabWidget().getChildTabViewAt(1).setLayoutParams(params);
-        tabHost.getTabWidget().getChildTabViewAt(2).setLayoutParams(params);
-    }
-
     public void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+
+    // Location Listener
+    @Override
+    public void onLocationChanged(Location location) {
+        userLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        userLocation = getDefaultLocation();
+    }
+
+    private Location getDefaultLocation() {
+        // defaulLocation = Alberti
+        Location defaultLocation = new Location(LocationManager.NETWORK_PROVIDER);
+        defaultLocation.setLatitude(-35.0322875);
+        defaultLocation.setLongitude(-60.2725113);
+        return defaultLocation;
+    }
 }

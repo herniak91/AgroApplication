@@ -1,6 +1,9 @@
 package com.app.android.hwilliams.agroapp.util;
 
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.zetterstrom.com.forecast.models.DataPoint;
 
@@ -14,8 +17,15 @@ import java.util.Locale;
  */
 public class ClimaUtils {
     private static final long ONE_MINUTE_IN_MILLIS = 60000;//millisecs
-    private static final int CLIMA_MINUTOS_INTERVALO = 1;
+    private static final int CLIMA_MINUTOS_INTERVALO = 10;
     private static DecimalFormat twoDForm = new DecimalFormat("#.##");
+
+    public static void setUpTabsLayout(TabHost tabHost) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        tabHost.getTabWidget().getChildTabViewAt(0).setLayoutParams(params);
+        tabHost.getTabWidget().getChildTabViewAt(1).setLayoutParams(params);
+        tabHost.getTabWidget().getChildTabViewAt(2).setLayoutParams(params);
+    }
 
     public static boolean isTimeToAskWheather(long nextTimeToCheck) {
         Date now = new Date();
