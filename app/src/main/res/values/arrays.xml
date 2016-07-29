@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="rubros">
+        <item>Siembra</item>
+        <item>Cosecha</item>
+        <item>Pulverización</item>
+        <item>Embolsado</item>
+        <item>Picado Forraje</item>
+        <item>Laboreo</item>
+        <item>Henificación</item>
+    </array>
+</resources>

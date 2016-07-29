@@ -105,6 +105,8 @@ public class Home extends Activity  implements LocationListener{
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Administracion.class);
                 intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, getIntent().getParcelableArrayListExtra(Administracion.EXTRA_GROUPS));
+                intent.putParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA, getIntent().getParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA));
+                intent.putParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES, getIntent().getParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES));
                 Home.this.startActivity(intent);
             }
         });

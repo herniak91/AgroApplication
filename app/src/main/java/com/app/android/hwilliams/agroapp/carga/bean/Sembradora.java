@@ -14,7 +14,7 @@ public class Sembradora extends MaquinaBasica {
     RadioGroup mapeo;
 
     public Sembradora(Context context, LayoutInflater inflater, MaquinaParcelable maquina) {
-        super(context, inflater,R.layout.carga_item_sembradora, maquina);
+        super(context, inflater,R.layout.carga_maquina_sembradora, maquina);
         mapeo = (RadioGroup) mainView.findViewById(R.id.carga_sembradora_mapeo);
     }
 

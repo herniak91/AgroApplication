@@ -7,13 +7,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/carga_item_marca"
-        android:duplicateParentState = "true" />
+        android:duplicateParentState = "true"
+        android:hint="Marca" />
 
     <AutoCompleteTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/carga_item_modelo"
-        android:duplicateParentState = "true"/>
+        android:duplicateParentState = "true"
+        android:hint="Modelo" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -64,7 +66,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/carga_item_image"
+            android:id="@+id/carga_item_image_dir"
             android:layout_weight="1" />
 
         <Button

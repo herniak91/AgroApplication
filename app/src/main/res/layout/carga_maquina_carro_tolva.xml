@@ -7,13 +7,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/carga_item_marca"
-        android:duplicateParentState = "true" />
+        android:duplicateParentState = "true"
+        android:hint="Marca" />
 
     <AutoCompleteTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/carga_item_modelo"
-        android:duplicateParentState = "true"/>
+        android:duplicateParentState = "true"
+        android:hint="Modelo" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="40dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Capacidad (kg)"
+            android:id="@+id/textView16"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="2" />
+
+        <AutoCompleteTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/carga_carro_tolva_capacidad"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -25,7 +52,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/carga_item_image"
+            android:id="@+id/carga_item_image_dir"
             android:layout_weight="1" />
 
         <Button

@@ -16,6 +16,9 @@ import android.widget.ProgressBar;
 import com.app.android.hwilliams.agroapp.R;
 import com.app.android.hwilliams.agroapp.admin.AdminParque;
 import com.app.android.hwilliams.agroapp.admin.AdminMaquina;
+import com.app.android.hwilliams.agroapp.carga.parcelable.ArquitecturaParqueMaquina;
+import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
+import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
 import com.app.android.hwilliams.agroapp.util.Params;
 
 import org.apache.http.HttpEntity;
@@ -95,10 +98,69 @@ public class ApplicationLoader extends ActionBarActivity {
             intent.putExtra(Home.EXTRA_DOLAR, ((JSONObject)response.get("dolar")).toString());
             intent.putExtra(Home.EXTRA_MERCADOS, ((JSONArray)response.get("mercados")).toString());
             intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, (ArrayList<? extends Parcelable>) getAdminData(response.get("admin").toString()));
+            intent.putParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA, (ArrayList<? extends Parcelable>) getOpcionesMaquinas(response.getJSONObject("maquinariaParams")));
+            intent.putParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES, (ArrayList<? extends Parcelable>) getArquitecturaParques(response.getJSONObject("maquinariaParams")));
         }catch (Exception e){
-            // Nothing happens
+            e.printStackTrace();
         }
         this.startActivityForResult(intent, 0);
+    }
+
+    private List<ArquitecturaParqueMaquina> getArquitecturaParques(JSONObject maquinas) throws JSONException {
+        List<ArquitecturaParqueMaquina> arquitecturas = new ArrayList<>();
+        JSONArray arquitecturaParques = maquinas.getJSONArray("arquitecturaParques");
+        for(int i = 0; i < arquitecturaParques.length(); i++){
+            JSONObject obj = arquitecturaParques.getJSONObject(i);
+            ArrayList<String> tiposMaquina = new ArrayList<>();
+            JSONArray modelosArr = obj.getJSONArray("maquinas");
+            for(int i4 = 0; i4 < modelosArr.length(); i4++){
+                tiposMaquina.add(modelosArr.getString(i4));
+            }
+            arquitecturas.add(new ArquitecturaParqueMaquina(obj.getString("nombre"), tiposMaquina));
+        }
+        return arquitecturas;
+    }
+
+    private List<MaquinaParcelable> getOpcionesMaquinas(JSONObject maquinas) throws JSONException {
+        List<MaquinaParcelable> resultList = new ArrayList<>();
+        JSONArray maquinasArr = maquinas.getJSONArray("maquinas");
+        for(int i = 0; i < maquinasArr.length(); i++){
+            JSONObject tipoMaquina = maquinasArr.getJSONObject(i);
+
+            // Marcas, con sus modelos correspondientes
+            ArrayList<MarcaParcelable> marcas = new ArrayList<>();
+            JSONArray marcaArr = tipoMaquina.getJSONArray("marcas");
+            for(int i3 = 0; i3 < marcaArr.length(); i3++){
+                JSONObject obj = marcaArr.getJSONObject(i3);
+                ArrayList<String> modelos = new ArrayList<>();
+                JSONArray modelosArr = obj.getJSONArray("modelos");
+                for(int i4 = 0; i4 < modelosArr.length(); i4++){
+                    modelos.add(modelosArr.getString(i4));
+                }
+                marcas.add(new MarcaParcelable(obj.getString("nombre"), modelos));
+            }
+
+            String tipo = tipoMaquina.getString("tipo");
+            MaquinaParcelable maquina = new MaquinaParcelable(tipo, marcas);
+            if(tipo.equalsIgnoreCase("carro tolva")){
+                ArrayList<String> capacidades = new ArrayList<>();
+                JSONArray capacidadArr = tipoMaquina.getJSONArray("capacidad");
+                for(int i2 = 0; i2 < capacidadArr.length(); i2++){
+                    capacidades.add(capacidadArr.getString(i2));
+                }
+                maquina.setCapacidades(capacidades);
+            }
+            if(tipo.equalsIgnoreCase("laboreo")){
+                ArrayList<String> tiposTrabajo = new ArrayList<>();
+                JSONArray capacidadArr = tipoMaquina.getJSONArray("tipo_trabajo");
+                for(int i2 = 0; i2 < capacidadArr.length(); i2++){
+                    tiposTrabajo.add(capacidadArr.getString(i2));
+                }
+                maquina.setTiposTrabajo(tiposTrabajo);
+            }
+            resultList.add(maquina);
+        }
+        return resultList;
     }
 
     private List<AdminParque> getAdminData(String jsonAdmin) throws JSONException {
