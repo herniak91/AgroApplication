@@ -19,7 +19,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/detalle_flipper"
-        android:layout_weight="1" />
+        android:layout_weight="4" />
+
+    <TableLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:id="@+id/detalle_container_maquinas"></TableLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -42,7 +49,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cargar"
-            android:id="@+id/detalle_cargar" />
+            android:text="Guardar"
+            android:id="@+id/detalle_guardar" />
     </LinearLayout>
 </LinearLayout>

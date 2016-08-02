@@ -49,7 +49,11 @@ public class ClimaUtils {
             return h;
         String d = twoDForm.format(Double.parseDouble(h));
         char[] arr = d.toCharArray();
-        return String.valueOf(arr[2]) + String.valueOf(arr[3]) + "%";
+        if(arr.length == 3)
+            return String.valueOf(arr[2]) + "0%";
+        if(arr.length == 4)
+            return String.valueOf(arr[2]) + String.valueOf(arr[3]) + "%";
+        return "";
     }
 
     public static String getWindSpeedKmH(Double windSpeed){

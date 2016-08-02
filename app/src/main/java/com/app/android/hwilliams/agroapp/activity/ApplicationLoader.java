@@ -20,6 +20,7 @@ import com.app.android.hwilliams.agroapp.carga.parcelable.ArquitecturaParqueMaqu
 import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
 import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
 import com.app.android.hwilliams.agroapp.util.Params;
+import com.app.android.hwilliams.agroapp.util.PerfilUtils;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -97,28 +98,13 @@ public class ApplicationLoader extends ActionBarActivity {
             intent.putExtra(Home.EXTRA_COTIZACIONES, ((JSONArray)response.get("cotizaciones")).toString());
             intent.putExtra(Home.EXTRA_DOLAR, ((JSONObject)response.get("dolar")).toString());
             intent.putExtra(Home.EXTRA_MERCADOS, ((JSONArray)response.get("mercados")).toString());
-            intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, (ArrayList<? extends Parcelable>) getAdminData(response.get("admin").toString()));
+            intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, (ArrayList<? extends Parcelable>) PerfilUtils.getAdminData(response.get("admin").toString()));
             intent.putParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA, (ArrayList<? extends Parcelable>) getOpcionesMaquinas(response.getJSONObject("maquinariaParams")));
             intent.putParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES, (ArrayList<? extends Parcelable>) getArquitecturaParques(response.getJSONObject("maquinariaParams")));
         }catch (Exception e){
             e.printStackTrace();
         }
         this.startActivityForResult(intent, 0);
-    }
-
-    private List<ArquitecturaParqueMaquina> getArquitecturaParques(JSONObject maquinas) throws JSONException {
-        List<ArquitecturaParqueMaquina> arquitecturas = new ArrayList<>();
-        JSONArray arquitecturaParques = maquinas.getJSONArray("arquitecturaParques");
-        for(int i = 0; i < arquitecturaParques.length(); i++){
-            JSONObject obj = arquitecturaParques.getJSONObject(i);
-            ArrayList<String> tiposMaquina = new ArrayList<>();
-            JSONArray modelosArr = obj.getJSONArray("maquinas");
-            for(int i4 = 0; i4 < modelosArr.length(); i4++){
-                tiposMaquina.add(modelosArr.getString(i4));
-            }
-            arquitecturas.add(new ArquitecturaParqueMaquina(obj.getString("nombre"), tiposMaquina));
-        }
-        return arquitecturas;
     }
 
     private List<MaquinaParcelable> getOpcionesMaquinas(JSONObject maquinas) throws JSONException {
@@ -163,22 +149,19 @@ public class ApplicationLoader extends ActionBarActivity {
         return resultList;
     }
 
-    private List<AdminParque> getAdminData(String jsonAdmin) throws JSONException {
-        List<AdminParque> groupList = new ArrayList<>();
-        JSONArray list = new JSONArray(jsonAdmin);
-        for (int i = 0; i < list.length(); i++){
-            JSONObject obj = list.getJSONObject(i);
-            JSONObject groupJson = obj.getJSONObject("parque");
-            List<AdminMaquina> items = new ArrayList<>();
-            JSONArray itemsJsonArray = obj.getJSONArray("maquinas");
-            for (int a = 0; a < itemsJsonArray.length(); a++){
-                JSONObject maquinaJson = itemsJsonArray.getJSONObject(a);
-                items.add(new AdminMaquina(maquinaJson.getInt("id"), maquinaJson.getString("tipo"), maquinaJson.getString("marca"), maquinaJson.getString("modelo"), maquinaJson.getString("atributos")));
+    private List<ArquitecturaParqueMaquina> getArquitecturaParques(JSONObject maquinas) throws JSONException {
+        List<ArquitecturaParqueMaquina> arquitecturas = new ArrayList<>();
+        JSONArray arquitecturaParques = maquinas.getJSONArray("arquitecturaParques");
+        for(int i = 0; i < arquitecturaParques.length(); i++){
+            JSONObject obj = arquitecturaParques.getJSONObject(i);
+            ArrayList<String> tiposMaquina = new ArrayList<>();
+            JSONArray modelosArr = obj.getJSONArray("maquinas");
+            for(int i4 = 0; i4 < modelosArr.length(); i4++){
+                tiposMaquina.add(modelosArr.getString(i4));
             }
-            AdminParque groupObj = new AdminParque(groupJson.getInt("id"), groupJson.getString("estado"), groupJson.getString("rubro"), items);
-            groupList.add(groupObj);
+            arquitecturas.add(new ArquitecturaParqueMaquina(obj.getString("nombre"), tiposMaquina));
         }
-        return groupList;
+        return arquitecturas;
     }
 
     @Override

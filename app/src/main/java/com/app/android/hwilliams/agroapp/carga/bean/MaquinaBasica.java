@@ -3,18 +3,15 @@ package com.app.android.hwilliams.agroapp.carga.bean;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.android.hwilliams.agroapp.R;
 import com.app.android.hwilliams.agroapp.activity.Carga;
@@ -29,9 +26,11 @@ import java.util.ArrayList;
 public class MaquinaBasica extends LinearLayout{
     protected View mainView;
     protected AutoCompleteTextView marca, modelo;
-    protected Button imagen;
+    protected Button imagenCarga;
+    protected ImageButton imagenCancel;
     protected Context contexto;
     TextView imageDir;
+    CharSequence[] opcionesImagen;
 
     public MaquinaBasica(Context context, LayoutInflater inflater, int layoutId, final MaquinaParcelable maquina) {
         super(context);
@@ -40,7 +39,8 @@ public class MaquinaBasica extends LinearLayout{
 
         marca = (AutoCompleteTextView) mainView.findViewById(R.id.carga_item_marca);
         modelo = (AutoCompleteTextView) mainView.findViewById(R.id.carga_item_modelo);
-        imagen = (Button) mainView.findViewById(R.id.carga_item_image_action);
+        imagenCarga = (Button) mainView.findViewById(R.id.carga_imagen_action);
+        imagenCancel = (ImageButton) mainView.findViewById(R.id.carga_imagen_cancel);
         imageDir = (TextView) mainView.findViewById(R.id.carga_item_image_dir);
 
         // marcas
@@ -74,37 +74,40 @@ public class MaquinaBasica extends LinearLayout{
         });
 
         // Imagen
-        final CharSequence[] items = { "Camara", "Galeria",
-                "Cancel" };
+        opcionesImagen = new CharSequence[]{"Galeria"};
+        if(getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA))
+            opcionesImagen = new CharSequence[]{"Galeria", "Camara"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setItems(items, new DialogInterface.OnClickListener() {
+        builder.setItems(opcionesImagen, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                if (items[item].equals("Camara")) {
-                        cameraIntent();
-                } else if (items[item].equals("Choose from Library")) {
-                        galleryIntent();
-                } else if (items[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
+                starImageSelection(item);
             }
         });
 
-
-        imagen.setOnClickListener(new OnClickListener() {
+        imagenCarga.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 builder.show();
             }
         });
+        imagenCancel.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageDir.setText("");
+                v.setVisibility(GONE);
+            }
+        });
     }
 
-    private void galleryIntent() {
-
-    }
-
-    private void cameraIntent() {
-        ((Carga)contexto).takePicture(imageDir);
+    private void starImageSelection(int pos){
+        if(opcionesImagen[pos].toString().equalsIgnoreCase("Galeria")){
+            ((Carga)contexto).selectPicture(imageDir,imagenCancel);
+            return;
+        }
+        if(opcionesImagen[pos].toString().equalsIgnoreCase("Camara")){
+            ((Carga)contexto).takePicture(imageDir,imagenCancel);
+        }
     }
 
     public boolean isMissingInformation(){
@@ -112,8 +115,6 @@ public class MaquinaBasica extends LinearLayout{
             return true;
         return false;
     }
-
-
 
     public String getMarca(){
         return marca.getText().toString();

@@ -3,19 +3,11 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <AutoCompleteTextView
+    <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/carga_item_marca"
-        android:duplicateParentState = "true"
-        android:hint="Marca" />
-
-    <AutoCompleteTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/carga_item_modelo"
-        android:duplicateParentState = "true"
-        android:hint="Modelo" />
+        layout="@layout/carga_marca_modelo"
+        android:layout_gravity="center_horizontal" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -56,24 +48,10 @@
         </RadioGroup>
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:id="@+id/carga_item_image_dir"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cargar"
-            android:id="@+id/carga_item_image_action" />
-    </LinearLayout>
+        layout="@layout/carga_imagen"
+        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

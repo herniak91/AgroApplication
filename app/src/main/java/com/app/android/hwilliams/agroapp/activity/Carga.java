@@ -5,15 +5,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -27,6 +30,7 @@ import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
 import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -37,6 +41,7 @@ public class Carga extends Activity {
     public static final String EXTRA_ARQ_PARQUES = "arqParque";
 
     private static final int ACTION_IMAGE_CAPTURE = 1;
+    private static final int ACTION_IMAGE_SELECT = 3;
     private static final int ACTION_DETALLE = 2;
 
     TextView rubro;
@@ -47,6 +52,7 @@ public class Carga extends Activity {
 
     // A ser usados por las maquinas contenidas
     TextView destinoImage;
+    ImageButton cancelView;
     File destinoFile;
     //
 
@@ -60,7 +66,7 @@ public class Carga extends Activity {
         arquitecturas = getIntent().getParcelableArrayListExtra(EXTRA_ARQ_PARQUES);
         opcionesMaquinas = getIntent().getParcelableArrayListExtra(EXTRA_OPCIONES_MAQUINA);
 
-        final List<MaquinaParcelable> groups = getMaquinasByRubro();
+        final List<MaquinaParcelable> groups = getMaquinasDeArquitecturaByRubro();
 
         container = (LinearLayout) findViewById(R.id.carga_container);
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -126,17 +132,93 @@ public class Carga extends Activity {
         });
     }
 
-    public void takePicture(TextView destino) {
-        destinoImage = destino;
+    private void startDetalleActivity() {
+        Intent intent = new Intent(Carga.this, Detalle.class);
+        intent.putExtra(Detalle.EXTRA_RUBRO,rubro.getText().toString());
+        intent.putParcelableArrayListExtra(Detalle.EXTRA_MAQUINAS, (ArrayList<? extends Parcelable>) getMaquinasCargadas());
+        startActivityForResult(intent, ACTION_DETALLE);
+    }
+
+    // Usado por las maquinas cargandose
+    public void takePicture(TextView destino, ImageButton cancel) {
+/*        destinoImage = destino;
+        cancelView = cancel;
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         String root = Environment.getExternalStorageDirectory().toString();
         Calendar cal = Calendar.getInstance();
-        destinoFile = new File(root, "AgroRent_" + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) + ".jpeg");
+        destinoFile = new File(root, "AgroRent_" + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) + ".jpg");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, destinoFile.getAbsolutePath()); // set the image file name
-        startActivityForResult(intent, ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, ACTION_IMAGE_CAPTURE);*/
+
+        destinoImage = destino;
+        cancelView = cancel;
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        Calendar cal = Calendar.getInstance();
+        String imageFileName = "AgroRent_" + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND);
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = null;
+        try {
+//            image = File.createTempFile(imageFileName, ".jpg", storageDir);
+            image = new File(storageDir, "AgroRent_" + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) + ".jpg");
+            destinoFile = image;
+            Uri uri = Uri.fromFile(image);
+            //           Uri photoURI = FileProvider.getUriForFile(Carga.this, "com.app.android.hwilliams.agroapp.fileprovider", image);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri); // set the image file name
+            startActivityForResult(intent, ACTION_IMAGE_CAPTURE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private List<MaquinaParcelable> getMaquinasByRubro() {
+    public void selectPicture(TextView destino, ImageButton cancel){
+        destinoImage = destino;
+        cancelView = cancel;
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, ACTION_IMAGE_SELECT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case ACTION_IMAGE_CAPTURE :{
+                if (resultCode == RESULT_OK) {
+                    destinoImage.setText(destinoFile.getName());
+                    cancelView.setVisibility(View.VISIBLE);
+                }
+                break;
+            }
+            case ACTION_IMAGE_SELECT : {
+                if (resultCode == RESULT_OK) {
+                    Uri selectedImage = data != null ? data.getData() : Uri.EMPTY;
+                    destinoImage.setText(selectedImage.getLastPathSegment());
+                    cancelView.setVisibility(View.VISIBLE);
+                }
+                break;
+            }
+            case ACTION_DETALLE : {
+                switch (resultCode){
+                    case RESULT_OK :{
+                        super.onBackPressed();
+                        break;
+                    }
+                    case Detalle.RESULT_DESCARTAR :{
+                        super.onBackPressed();
+                        break;
+                    }
+                    default:{
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    private List<MaquinaParcelable> getMaquinasDeArquitecturaByRubro() {
         String rubroSeleccionado = rubro.getText().toString();
         ArquitecturaParqueMaquina arquitecturaSeleccionada = null;
         for (ArquitecturaParqueMaquina arq : arquitecturas) {
@@ -223,26 +305,6 @@ public class Carga extends Activity {
             }
         }
         return maquinasCargadas;
-    }
-
-    private void startDetalleActivity() {
-        Intent intent = new Intent(Carga.this, Detalle.class);
-        intent.putExtra(Detalle.EXTRA_RUBRO,rubro.getText().toString());
-        intent.putParcelableArrayListExtra(Detalle.EXTRA_MAQUINAS, (ArrayList<? extends Parcelable>) getMaquinasCargadas());
-        startActivityForResult(intent, ACTION_DETALLE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ACTION_IMAGE_CAPTURE) {
-            if (resultCode == RESULT_OK) {
-                destinoImage.setText(destinoFile.getName());
-            }
-        }
-        if (requestCode == ACTION_DETALLE && resultCode == RESULT_OK) {
-            super.onBackPressed();
-        }
     }
 
     private void hideAllViews() {

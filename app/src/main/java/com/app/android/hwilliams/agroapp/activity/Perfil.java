@@ -6,15 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.android.hwilliams.agroapp.R;
 import com.app.android.hwilliams.agroapp.activity.superclass.Profile;
@@ -22,9 +18,6 @@ import com.app.android.hwilliams.agroapp.util.CommonsUtils;
 import com.app.android.hwilliams.agroapp.util.JsonPost;
 import com.app.android.hwilliams.agroapp.util.Params;
 import com.app.android.hwilliams.agroapp.util.PerfilUtils;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONObject;
 
@@ -33,6 +26,7 @@ import java.util.Map;
 
 public class Perfil extends Profile {
 
+    public static final String USER_LOGIN = "usrLogin";
     EditText nombreText, apellidoText, telefonoText, emailText;
     Button siguienteBtn, editar, cambiarPass;
 
@@ -88,7 +82,7 @@ public class Perfil extends Profile {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(JsonPost.URL, Params.URL_PERFIL_ACTUALIZAR);
                     map.put(JsonPost.JSON, obj.toString());
-                    new AsyncPost().execute(map);
+                    new ProfilePost().execute(map);
                 }
 
             }
@@ -124,8 +118,14 @@ public class Perfil extends Profile {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if( (requestCode == PerfilPassword.USER_LOGIN || requestCode == PerfilPassword.USER_CREATION) && resultCode == Activity.RESULT_OK){
-            populateFields(getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE));
+        if(requestCode == PerfilPassword.USER_LOGIN || requestCode == PerfilPassword.USER_CREATION){
+            if(resultCode == Activity.RESULT_OK){
+                populateFields(getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE));
+                getIntent().putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, data.getParcelableArrayListExtra(Administracion.EXTRA_GROUPS));
+                getIntent().putExtra(Perfil.USER_LOGIN, true);
+            }else{
+                getIntent().putExtra(Perfil.USER_LOGIN, false);
+            }
         }
         if(requestCode == PerfilPassword.PASSWORD_CHANGE && resultCode == Activity.RESULT_OK){
             CommonsUtils.showToast("Contraseña actualizada", getApplicationContext());

@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -37,6 +38,7 @@ import android.zetterstrom.com.forecast.models.Unit;
 
 import com.app.android.hwilliams.agroapp.BuildConfig;
 import com.app.android.hwilliams.agroapp.R;
+import com.app.android.hwilliams.agroapp.admin.AdminParque;
 import com.app.android.hwilliams.agroapp.util.ClimaUtils;
 import com.app.android.hwilliams.agroapp.util.CotizacionesUtils;
 import com.app.android.hwilliams.agroapp.util.Params;
@@ -44,6 +46,7 @@ import com.app.android.hwilliams.agroapp.util.Params;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -59,10 +62,15 @@ public class Home extends Activity  implements LocationListener{
     public static final String EXTRA_MERCADOS = "mercados";
     public static final String EXTRA_DOLAR = "dolar";
 
+    public static final int ACTION_SETTINGS = 4;
+    public static final int ACTION_PERFIL = 5;
+
     private long NEXT_TIME_TO_CKECK = 0;
     private boolean WAS_USER_ASKED = false;
     private LocationManager mLocationManager;
     private Location userLocation;
+
+    List<AdminParque> parquesUsuarios;
 
     Button buscar_btn,admin_btn;
     TabHost tabHost;
@@ -78,7 +86,6 @@ public class Home extends Activity  implements LocationListener{
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
         // Iniciar tabs
         tabHost = (TabHost) findViewById(R.id.home_tabHost);
         tabHost.setup();
@@ -87,8 +94,6 @@ public class Home extends Activity  implements LocationListener{
         setUpTabInformacion();
         ClimaUtils.setUpTabsLayout(tabHost);
 
-        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE);
-        boolean isUserLoggedIn = sharedPref.contains(Params.PREF_USERNAME);
         buscar_btn = (Button) findViewById(R.id.home_buscar_btn);
         buscar_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,27 +102,26 @@ public class Home extends Activity  implements LocationListener{
                 Home.this.startActivity(intent);
             }
         });
-        buscar_btn.setEnabled(isUserLoggedIn);
 
+        parquesUsuarios = getIntent().getParcelableArrayListExtra(Administracion.EXTRA_GROUPS);
         admin_btn = (Button) findViewById(R.id.home_admin_btn);
         admin_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Home.this, Administracion.class);
-                intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, getIntent().getParcelableArrayListExtra(Administracion.EXTRA_GROUPS));
+                intent.putParcelableArrayListExtra(Administracion.EXTRA_GROUPS, (ArrayList<? extends Parcelable>) getParquesUsuarios());
                 intent.putParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA, getIntent().getParcelableArrayListExtra(Carga.EXTRA_OPCIONES_MAQUINA));
                 intent.putParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES, getIntent().getParcelableArrayListExtra(Carga.EXTRA_ARQ_PARQUES));
                 Home.this.startActivity(intent);
             }
         });
-        admin_btn.setEnabled(isUserLoggedIn);
 
         ImageButton profileImg = (ImageButton) findViewById(R.id.home_profileButton);
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Home.this, Perfil.class);
-                Home.this.startActivity(intent);
+                Intent intent = new Intent(Home.this, Perfil2.class);
+                startActivityForResult(intent, ACTION_PERFIL);
             }
         });
 
@@ -135,10 +139,35 @@ public class Home extends Activity  implements LocationListener{
     @Override
     protected void onResume() {
         super.onResume();
+        SharedPreferences sharedPref = getSharedPreferences(getString(R.string.shared_file_name), Context.MODE_PRIVATE);
+        boolean isUserLoggedIn = sharedPref.contains(Params.PREF_USERNAME);
+        buscar_btn.setEnabled(isUserLoggedIn);
+        admin_btn.setEnabled(isUserLoggedIn);
         if(!WAS_USER_ASKED && !mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
             askUserForSettings();
         }
         actualizarInfoClima();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case ACTION_SETTINGS : {
+                WAS_USER_ASKED = true;
+                break;
+            }
+            case ACTION_PERFIL : {
+                if(data.getBooleanExtra(Perfil.USER_LOGIN, false)){
+                    parquesUsuarios = data.getParcelableArrayListExtra(Administracion.EXTRA_GROUPS);
+                }
+                break;
+            }
+        }
+    }
+
+    public List<AdminParque> getParquesUsuarios() {
+        return parquesUsuarios;
     }
 
     private void actualizarInfoClima(){
@@ -168,12 +197,6 @@ public class Home extends Activity  implements LocationListener{
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        WAS_USER_ASKED = true;
-    }
-
     private Location getLocation(){
         return userLocation != null ? userLocation : getDefaultLocation();
     }
@@ -186,7 +209,7 @@ public class Home extends Activity  implements LocationListener{
             @Override
             public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                 Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivityForResult(myIntent, 1);
+                startActivityForResult(myIntent, ACTION_SETTINGS);
                 paramDialogInterface.dismiss();
             }
         });

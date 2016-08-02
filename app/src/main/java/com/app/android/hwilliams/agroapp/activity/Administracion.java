@@ -38,7 +38,7 @@ public class Administracion extends Activity {
         list = (ExpandableListView) findViewById(R.id.admin_expandableList);
 
         List<AdminParque> parques = getIntent().getParcelableArrayListExtra(EXTRA_GROUPS);
-        List<AdminListGroup> groups = organizarParques(parques);
+        List<AdminListGroup> groups = ordenarParquesPorRubro(parques);
         AdminExpandableListAdapter adapter = new AdminExpandableListAdapter(groups);
         adapter.setInflater((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE));
 
@@ -74,8 +74,6 @@ public class Administracion extends Activity {
                     }
                 });
 
-
-
         cargar = (Button) findViewById(R.id.admin_cargar);
         cargar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +101,7 @@ public class Administracion extends Activity {
         return output;
     }
 
-    private List<AdminListGroup> organizarParques(List<AdminParque> parques) {
+    private List<AdminListGroup> ordenarParquesPorRubro(List<AdminParque> parques) {
         List<AdminListGroup> groups = new ArrayList<>();
         List<String> rubros = new ArrayList<>();
         Map<String, List<AdminParque>> map = new HashMap<>();

@@ -4,6 +4,18 @@ import android.content.Context;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.android.hwilliams.agroapp.admin.AdminMaquina;
+import com.app.android.hwilliams.agroapp.admin.AdminParque;
+import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
+import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Hernan on 7/23/2016.
  */
@@ -33,8 +45,55 @@ public class PerfilUtils {
         return true;
     }
 
-    private static boolean isEmailValid(String email) {
+    public static boolean isEmailValid(String email) {
         return email.contains("@") && email.contains(".") && !email.contains(" ");
+    }
+
+    public static List<AdminParque> getAdminData(String jsonAdmin) throws JSONException {
+        List<AdminParque> groupList = new ArrayList<>();
+        if( !(jsonAdmin == null || jsonAdmin.equalsIgnoreCase("null") || jsonAdmin.equalsIgnoreCase(""))){
+            JSONArray list = new JSONArray(jsonAdmin);
+            for (int i = 0; i < list.length(); i++){
+                JSONObject obj = list.getJSONObject(i);
+                JSONObject groupJson = obj.getJSONObject("parque");
+                List<AdminMaquina> items = new ArrayList<>();
+                JSONArray itemsJsonArray = obj.getJSONArray("maquinas");
+                for (int a = 0; a < itemsJsonArray.length(); a++){
+                    JSONObject maquinaJson = itemsJsonArray.getJSONObject(a);
+                    items.add(new AdminMaquina(maquinaJson.getInt("id"), maquinaJson.getString("tipo"), maquinaJson.getString("marca"), maquinaJson.getString("modelo"), maquinaJson.getString("atributos")));
+                }
+                AdminParque groupObj = new AdminParque(groupJson.getInt("id"), groupJson.getString("estado"), groupJson.getString("rubro"), items);
+                groupList.add(groupObj);
+            }
+        }
+        return groupList;
+    }
+
+    public static boolean isPasswordValidForCreation(String password, String password2) {
+        return passwordsCheck(password, password2) && checkPasswordLenght(password) && noSpecialChars(password);
+    }
+
+    private static boolean passwordsCheck(String password, String password2) {
+        if (!password.matches(password2)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isPasswordValidForLogin(String password){
+        return checkPasswordLenght(password) && noSpecialChars(password);
+    }
+
+    public static boolean checkPasswordLenght(String password) {
+        if (password.length() > 7)
+            return true;
+        return false;
+    }
+
+    public static boolean noSpecialChars(String password) {
+        if (password.matches("[a-zA-Z0-9.? ]*"))
+            return true;
+        return false;
     }
 
 }

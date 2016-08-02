@@ -1,15 +1,7 @@
 package com.app.android.hwilliams.agroapp.activity;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -25,9 +17,6 @@ import com.app.android.hwilliams.agroapp.R;
 import com.app.android.hwilliams.agroapp.activity.superclass.Profile;
 import com.app.android.hwilliams.agroapp.util.JsonPost;
 import com.app.android.hwilliams.agroapp.util.Params;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,7 +26,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -140,7 +128,7 @@ public class PerfilPassword extends Profile {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(JsonPost.URL, Params.URL_PERFIL_CREAR);
                     map.put(JsonPost.JSON, obj.toString());
-                    new AsyncPost().execute(map);
+                    new ProfilePost().execute(map);
                 }
             }
         });
@@ -164,7 +152,7 @@ public class PerfilPassword extends Profile {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(JsonPost.URL, Params.URL_PERFIL_LOGIN);
                     map.put(JsonPost.JSON, obj.toString());
-                    new AsyncPost().execute(map);
+                    new ProfilePost().execute(map);
                 }
             }
         });
@@ -190,7 +178,7 @@ public class PerfilPassword extends Profile {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(JsonPost.URL, Params.URL_PERFIL_ACTUALIZAR);
                     map.put(JsonPost.JSON, obj.toString());
-                    new AsyncPost().execute(map);
+                    new ProfilePost().execute(map);
                 }
             }
         });
