@@ -19,7 +19,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/detalle_flipper"
-        android:layout_weight="4" />
+        android:layout_weight="4"
+        android:autoStart="true" />
 
     <TableLayout
         android:orientation="vertical"
@@ -37,19 +38,22 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Descartar"
-            android:id="@+id/detalle_descartar" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="Editar"
-            android:id="@+id/detalle_editar" />
+            android:id="@+id/detalle_editar"
+            android:layout_weight="1" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Guardar"
-            android:id="@+id/detalle_guardar" />
+            android:id="@+id/detalle_guardar"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contactar dueño"
+            android:id="@+id/detalle_contactar"
+            android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>

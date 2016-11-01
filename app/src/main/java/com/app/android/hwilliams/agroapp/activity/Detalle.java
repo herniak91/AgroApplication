@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -15,103 +14,105 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.app.android.hwilliams.agroapp.R;
-import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
-import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
+import com.app.android.hwilliams.agroapp.activity.detalle.MaquinaDetalle;
+import com.app.android.hwilliams.agroapp.activity.detalle.ParqueDetalle;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Detalle extends Activity {
-    public static final int RESULT_DESCARTAR = 5;
-    public static final int RESULT_EDITAR = 6;
-    public static final String EXTRA_MAQUINAS = "parque";
-    public static final String EXTRA_RUBRO = "rubro";
+    public static final String EXTRA_PARQUE = "parque";
+    public static final String EXTRA_MAQUINAS_PARQUE = "maquinasParque";
+    ParqueDetalle parque;
 
-    List<MaquinaParcelable> maquinasCargadas;
-    String rubro;
-
-    ViewFlipper flipperImagenes;
-    TableLayout containerMaquinas;
-    Button descartar, editar, guardar;
+    ViewFlipper contenedorImagenes;
+    TableLayout contenedorMaquinas;
+    Button editar, guardar, contactar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle);
-
-        maquinasCargadas = getIntent().getParcelableArrayListExtra(EXTRA_MAQUINAS);
-        rubro = getIntent().getStringExtra(EXTRA_RUBRO);
-
-        flipperImagenes = (ViewFlipper) findViewById(R.id.detalle_flipper);
-        containerMaquinas = (TableLayout) findViewById(R.id.detalle_container_maquinas);
-        descartar = (Button) findViewById(R.id.detalle_descartar);
+        // Imagenes
+        contenedorImagenes = (ViewFlipper) findViewById(R.id.detalle_flipper);
+        contenedorImagenes.setInAnimation(this, R.anim.slide_from_right);
+        contenedorImagenes.setOutAnimation(this, R.anim.slide_to_left);
+        // Resumen del parque. Maquinas que contiene
+        contenedorMaquinas = (TableLayout) findViewById(R.id.detalle_container_maquinas);
+        // Acciones posibles
         editar = (Button) findViewById(R.id.detalle_editar);
         guardar = (Button) findViewById(R.id.detalle_guardar);
+        contactar = (Button) findViewById(R.id.detalle_contactar);
 
-        LinearLayout layout;
+        parque = getIntent().getParcelableExtra(EXTRA_PARQUE);
+        ArrayList<MaquinaDetalle> maquinas2 = getIntent().getParcelableArrayListExtra(EXTRA_MAQUINAS_PARQUE);
+        parque.setMaquinas(maquinas2);
+
+        LinearLayout layout_maquina;
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        for (MaquinaParcelable maq : maquinasCargadas) {
-            layout = (LinearLayout) inflater.inflate(R.layout.detalle_maquina_row, null);
+        for (MaquinaDetalle maq : parque.getMaquinas()) {
+            layout_maquina = (LinearLayout) inflater.inflate(R.layout.detalle_maquina_row, null);
             String tipo = maq.getTipo();
-            ((TextView)layout.findViewById(R.id.tipo)).setText(tipo.toUpperCase());
+            ((TextView)layout_maquina.findViewById(R.id.tipo)).setText(tipo.toUpperCase());
             String marcaModelo = "";
-            MarcaParcelable marca = maq.getMarcas().get(0);
-            if(!"".equalsIgnoreCase(marca.getNombre())){
-                marcaModelo = "MARCA: " + marca.getNombre();
-                if(!"".equalsIgnoreCase(marca.getModelos().get(0)))
-                    marcaModelo = marcaModelo + " - MODELO: " + marca.getModelos().get(0);
-                TextView marcaModeloView = (TextView)layout.findViewById(R.id.marca_modelo);
+            if(!"".equalsIgnoreCase(maq.getMarca())){
+                marcaModelo = "MARCA: " + maq.getMarca();
+                if(!"".equalsIgnoreCase(maq.getModelo()))
+                    marcaModelo = marcaModelo + " - MODELO: " + maq.getModelo();
+                TextView marcaModeloView = (TextView)layout_maquina.findViewById(R.id.marca_modelo);
                 marcaModeloView.setText(marcaModelo);
                 marcaModeloView.setVisibility(View.VISIBLE);
             }
 
             if("sembradora".equalsIgnoreCase(tipo)){
-                TextView mapeo = (TextView)layout.findViewById(R.id.mapeo);
+                TextView mapeo = (TextView)layout_maquina.findViewById(R.id.mapeo);
                 mapeo.setText( maq.isMapeo() ? "Incluye mapeo satelital" : "No incluye mapeo satelital" );
                 mapeo.setVisibility(View.VISIBLE);
             }
-            if("carro tolva".equalsIgnoreCase(tipo) && !"".equalsIgnoreCase(maq.getCapacidades().get(0))){
-                TextView capacidad = (TextView)layout.findViewById(R.id.capacidad);
-                capacidad.setText("Capacidad: " + maq.getCapacidades().get(0));
+            if("carro tolva".equalsIgnoreCase(tipo) && !"".equalsIgnoreCase(maq.getCapacidad())){
+                TextView capacidad = (TextView)layout_maquina.findViewById(R.id.capacidad);
+                capacidad.setText("Capacidad: " + maq.getCapacidad());
                 capacidad.setVisibility(View.VISIBLE);
             }
-            if("laboreo".equalsIgnoreCase(tipo) && !"".equalsIgnoreCase(maq.getTiposTrabajo().get(0))){
-                TextView laboreo = (TextView)layout.findViewById(R.id.tipo_trabajo);
-                laboreo.setText("Especialización: " + maq.getTiposTrabajo().get(0));
+            if("laboreo".equalsIgnoreCase(tipo) && !"".equalsIgnoreCase(maq.getTipoTrabajo())){
+                TextView laboreo = (TextView)layout_maquina.findViewById(R.id.tipo_trabajo);
+                laboreo.setText("Especialización: " + maq.getTipoTrabajo());
                 laboreo.setVisibility(View.VISIBLE);
             }
-
             TableRow row = new TableRow(getApplicationContext());
             row.setGravity(Gravity.CENTER_HORIZONTAL);
-            row.addView(layout);
-            containerMaquinas.addView(row);
+            row.addView(layout_maquina);
+            contenedorMaquinas.addView(row);
         }
-
-        descartar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        editar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-
-        guardar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_CANCELED);
-    }
+   /* private void addImage(ViewFlipper viewFlipper, String imageDir, MaquinaDetalle maquinaDetalle) {
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        String mCurrentPhotoPath = storageDir.getAbsolutePath() + "/Camera/" + imageDir;
+        // Get the dimensions of the View
+        int targetW = viewFlipper.getWidth();
+        int targetH = viewFlipper.getHeight();
+
+        // Get the dimensions of the bitmap
+       *//* BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;*//*
+
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+        maquinaDetalle.setImageView(bitmap);
+        ImageView mImageView = new ImageView(getApplicationContext());
+        mImageView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        mImageView.setImageBitmap(bitmap);
+        viewFlipper.addView(mImageView);
+    }*/
+
 }

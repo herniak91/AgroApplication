@@ -6,26 +6,23 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TabHost;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,17 +72,32 @@ public class Home extends Activity  implements LocationListener{
     Button buscar_btn,admin_btn;
     TabHost tabHost;
     //Cotizaciones
-    Spinner mercadosOpt;
     Map<String, List<TableRow>> rowMap = new HashMap<>();
     // Clima
-    TextView climaActualTemp, climaActualTempAvrg, climaActualViento, climaActualDirViento, climaActualHumedad, homeClimaUpdate, dia1Dia, dia1Temp, dia2Dia, dia2Temp, dia3Dia, dia3Temp;
-    ImageView climaActualIcon;
+    TextView climaActualTemp, climaActualTempAvrg, climaActualViento, climaActualDirViento, homeClimaUpdate, dia1Dia, dia1Temp, dia2Dia, dia2Temp, dia3Dia, dia3Temp, climaUbicacion;
+    ImageView climaActualIcon, dia1Icon, dia2Icon, dia3Icon;
     private ProgressBar climaLoader;
+
+    private Map<String, Integer> iconosMap = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        iconosMap.put("clear-day", R.drawable.clear_day);
+        iconosMap.put("clear-night", R.drawable.clear_night);
+        iconosMap.put("cloudy", R.drawable.cloudy);
+        iconosMap.put("fog", R.drawable.fog);
+        iconosMap.put("hail", R.drawable.hail);
+        iconosMap.put("partly-cloudy-day", R.drawable.partly_cloudy_day);
+        iconosMap.put("partly-cloudy-night", R.drawable.partly_cloudy_night);
+        iconosMap.put("rain", R.drawable.rain);
+        iconosMap.put("sleet", R.drawable.sleet);
+        iconosMap.put("thunderstorm", R.drawable.thunderstorm);
+        iconosMap.put("tornado", R.drawable.tornado);
+        iconosMap.put("wind", R.drawable.wind);
+
         // Iniciar tabs
         tabHost = (TabHost) findViewById(R.id.home_tabHost);
         tabHost.setup();
@@ -120,7 +132,7 @@ public class Home extends Activity  implements LocationListener{
         profileImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Home.this, Perfil2.class);
+                Intent intent = new Intent(Home.this, Perfil.class);
                 startActivityForResult(intent, ACTION_PERFIL);
             }
         });
@@ -158,7 +170,7 @@ public class Home extends Activity  implements LocationListener{
                 break;
             }
             case ACTION_PERFIL : {
-                if(data.getBooleanExtra(Perfil.USER_LOGIN, false)){
+                if(data != null && resultCode == RESULT_OK){
                     parquesUsuarios = data.getParcelableArrayListExtra(Administracion.EXTRA_GROUPS);
                 }
                 break;
@@ -198,7 +210,12 @@ public class Home extends Activity  implements LocationListener{
     }
 
     private Location getLocation(){
-        return userLocation != null ? userLocation : getDefaultLocation();
+        if(userLocation != null){
+            climaUbicacion.setText("Ubicación actual");
+            return userLocation;
+        }
+        climaUbicacion.setText("Alberti, Buenos Aires");
+        return getDefaultLocation();
     }
 
     private void askUserForSettings(){
@@ -227,16 +244,16 @@ public class Home extends Activity  implements LocationListener{
         DataPoint current = forecast.getCurrently();
         Date update = new Date(current.getTime().getTime());
         DateFormat df = new SimpleDateFormat("HH:mm");
-        homeClimaUpdate.setText(df.format(update));
+        homeClimaUpdate.setText("Ultima actualización a las " + df.format(update));
         climaActualTemp.setText(ClimaUtils.getTemperatureValue(current.getTemperature(), current.getApparentTemperature()));
-        String min = ClimaUtils.getTemperatureValue(current.getTemperatureMin(), current.getApparentTemperatureMin());
-        String max = ClimaUtils.getTemperatureValue(current.getTemperatureMax(), current.getApparentTemperatureMax());
-        ClimaUtils.checkTempMinMaxVisibility(climaActualTempAvrg, min, max);
         climaActualViento.setText(ClimaUtils.getWindSpeedKmH(current.getWindSpeed()) + " Km/h");
         climaActualDirViento.setText(" " + ClimaUtils.getWindDirection(current.getWindBearing()));
-        climaActualHumedad.setText(ClimaUtils.getHumedad(current.getHumidity()));
         // TODO conseguir icono
-
+        if(iconosMap.get(current.getIcon().getText()) != null){
+            Bitmap bMap = BitmapFactory.decodeResource(getResources(), iconosMap.get(current.getIcon().getText()));
+            Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, climaActualTemp.getHeight(), climaActualTemp.getHeight(), true);
+            climaActualIcon.setImageBitmap(bMapScaled);
+        }
 
         // Dias siguientes
         DataBlock week = forecast.getDaily();
@@ -246,14 +263,19 @@ public class Home extends Activity  implements LocationListener{
             cal.setTime(day.getTime());
             int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
             switch (ClimaUtils.getDaysDiff(today, dayOfWeek)){
+                case 0:
+                    String min = ClimaUtils.getTemperatureValue(day.getTemperatureMin(), day.getApparentTemperatureMin());
+                    String max = ClimaUtils.getTemperatureValue(day.getTemperatureMax(), day.getApparentTemperatureMax());
+                    ClimaUtils.checkTempMinMaxVisibility(climaActualTempAvrg, min, max);
+                    break;
                 case 1:
-                    ClimaUtils.setUpDay(dia1Dia, dia1Temp, cal, day);
+                    ClimaUtils.setUpDay(dia1Dia, dia1Temp, cal, day, dia1Icon, iconosMap, getResources());
                     break;
                 case 2:
-                    ClimaUtils.setUpDay(dia2Dia, dia2Temp, cal, day);
+                    ClimaUtils.setUpDay(dia2Dia, dia2Temp, cal, day, dia2Icon, iconosMap, getResources());
                     break;
                 case 3:
-                    ClimaUtils.setUpDay(dia3Dia, dia3Temp, cal, day);
+                    ClimaUtils.setUpDay(dia3Dia, dia3Temp, cal, day, dia3Icon, iconosMap, getResources());
                     break;
                 default:
                     break;
@@ -276,19 +298,22 @@ public class Home extends Activity  implements LocationListener{
         climaActualTempAvrg = (TextView) findViewById(R.id.homeClima_tempAvrg);
         climaActualViento = (TextView) findViewById(R.id.homeClima_viento);
         climaActualDirViento = (TextView) findViewById(R.id.homeClima_vientoDir);
-        climaActualHumedad = (TextView) findViewById(R.id.homeClima_humedad);
+        climaUbicacion = (TextView) findViewById(R.id.homeClima_ubicacion);
 
         dia1Dia = (TextView) findViewById(R.id.homeClima_day1_day);
         dia1Temp = (TextView) findViewById(R.id.homeClima_day1_temp);
+        dia1Icon = (ImageView) findViewById(R.id.homeClima_day1_img);
         dia2Dia = (TextView) findViewById(R.id.homeClima_day2_day);
         dia2Temp = (TextView) findViewById(R.id.homeClima_day2_temp);
+        dia2Icon = (ImageView) findViewById(R.id.homeClima_day2_img);
         dia3Dia = (TextView) findViewById(R.id.homeClima_day3_day);
         dia3Temp = (TextView) findViewById(R.id.homeClima_day3_temp);
+        dia3Icon = (ImageView) findViewById(R.id.homeClima_day3_img);
     }
 
     private void setUpTabCotizaciones() {
         TabHost.TabSpec tabCotizacion = tabHost.newTabSpec("Cotizaciones");
-        tabCotizacion.setIndicator("Cotizaciones");
+        tabCotizacion.setIndicator("Cotización \n del cereal");
         tabCotizacion.setContent(R.id.home_tabCotizacion);
         tabHost.addTab(tabCotizacion);
 
@@ -298,35 +323,21 @@ public class Home extends Activity  implements LocationListener{
         CotizacionesUtils.setCotizacionDolar(compraDolar, ventaDolar, getIntent().getStringExtra(Home.EXTRA_DOLAR));
 
         // Opciones de mercados y sus cotizaciones
-        TableLayout tableCotizaciones = (TableLayout) findViewById(R.id.home_tablaCotizacion);
-        CotizacionesUtils.populateRows(tableCotizaciones, getIntent().getStringExtra(Home.EXTRA_COTIZACIONES), rowMap);
-
-        mercadosOpt = (Spinner) findViewById(R.id.spinner_mercados);
-        List<String> mercadosList = CotizacionesUtils.getListaMercados(getIntent().getStringExtra(Home.EXTRA_MERCADOS));
-        mercadosOpt.setAdapter(new ArrayAdapter<String>(Home.this, R.layout.support_simple_spinner_dropdown_item, mercadosList));
-        mercadosOpt.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected = parent.getItemAtPosition(position).toString();
-                for (Map.Entry<String, List<TableRow>> entry: rowMap.entrySet()) {
-                    int visibility = entry.getKey().equalsIgnoreCase(selected) ? View.VISIBLE : View.GONE;
-                    for (TableRow row: entry.getValue()) {
-                        row.setVisibility(visibility);
-                    }
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Never happens
-            }
-        });
+        LinearLayout containerCotizaciones = (LinearLayout) findViewById(R.id.cotizaciones_container);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        CotizacionesUtils.populateRowsCotizaciones(containerCotizaciones, getIntent().getStringExtra(Home.EXTRA_COTIZACIONES), inflater, Home.this);
     }
 
     private void setUpTabInformacion() {
         TabHost.TabSpec tabInfo = tabHost.newTabSpec("Información");
-        tabInfo.setIndicator("Información");
+        tabInfo.setIndicator("Precios \norientativos");
         tabInfo.setContent(R.id.home_tabInfo);
         tabHost.addTab(tabInfo);
+
+        LinearLayout containerInformacion = (LinearLayout) findViewById(R.id.home_tabInfo);
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        String jsonInfo = "[{\"nombre\":\"soja\",\"qqhaes\":[{\"precio\":1001.0,\"qqha\":\"20\"},{\"precio\":1146.0,\"qqha\":\"30\"},{\"precio\":1340.0,\"qqha\":\"40\"},{\"precio\":1615.0,\"qqha\":\"50\"}]},{\"nombre\":\"trigo\",\"qqhaes\":[{\"precio\":801.3,\"qqha\":\"20\"},{\"precio\":918.2,\"qqha\":\"30\"},{\"precio\":1085.1,\"qqha\":\"40\"}]},{\"nombre\":\"maiz\",\"qqhaes\":[{\"precio\":1248.0,\"qqha\":\"50\"},{\"precio\":1403.0,\"qqha\":\"70\"},{\"precio\":1601.0,\"qqha\":\"90\"},{\"precio\":1866.0,\"qqha\":\"110\"},{\"precio\":2235.0,\"qqha\":\"130\"}]}]";
+        CotizacionesUtils.populateRowsInformacion(containerInformacion, jsonInfo, inflater,Home.this);
     }
 
     public void showToast(String message){
@@ -358,6 +369,8 @@ public class Home extends Activity  implements LocationListener{
         Location defaultLocation = new Location(LocationManager.NETWORK_PROVIDER);
         defaultLocation.setLatitude(-35.0322875);
         defaultLocation.setLongitude(-60.2725113);
+//        climaUbicacion.setText("Alberti, Buenos Aires");
         return defaultLocation;
     }
+
 }

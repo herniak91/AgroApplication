@@ -27,6 +27,9 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCHLlXLtZfwdSpxc8M-XNcLanK93-vQoQk" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity android:name=".activity.ApplicationLoader">
             <intent-filter>
@@ -35,18 +38,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.Busqueda" />
-        <activity android:name=".activity.Resultados" />
-        <activity android:name=".activity.Perfil" />
+        <activity android:name=".activity.map.ResultadosMap" />
         <activity android:name=".activity.Administracion" />
         <activity android:name=".activity.Carga" />
         <activity android:name=".activity.Detalle" />
-        <activity android:name=".activity.PerfilPassword" />
         <activity
             android:name=".activity.Home"
             android:screenOrientation="portrait" />
         <activity android:name=".activity.superclass.Profile" />
-        <activity android:name=".activity.Perfil2" android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".activity.Perfil"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".activity.Busqueda" />
+        <activity android:name=".activity.map.LocationSelector" />
+        <activity android:name=".activity.DetalleResultado" />
+        <activity android:name=".activity.DetalleCarga" />
     </application>
 
 </manifest>

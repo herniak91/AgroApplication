@@ -13,7 +13,8 @@
         android:layout_weight="1"
         android:layout_alignTop="@+id/admin_group_cantidad"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textSize="24dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,5 +23,6 @@
         android:id="@+id/admin_group_cantidad"
         android:layout_weight="1"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:textSize="24dp" />
 </RelativeLayout>

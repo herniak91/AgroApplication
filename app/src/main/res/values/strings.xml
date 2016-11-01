@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AgroApp</string>
+    <string name="app_name">Agrorent</string>
     <string name="info_temp_label">36º</string>
     <string name="info_ubicacion">Alberti</string>
     <string name="wheater_image">Wheater image</string>

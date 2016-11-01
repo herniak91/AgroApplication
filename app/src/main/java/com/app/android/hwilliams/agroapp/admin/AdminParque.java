@@ -3,6 +3,8 @@ package com.app.android.hwilliams.agroapp.admin;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.app.android.hwilliams.agroapp.activity.detalle.UsuarioDetalle;
+
 import java.util.List;
 
 /**
@@ -13,6 +15,9 @@ public class AdminParque implements Parcelable{
     private String rubro;
     private String estado;
     private List<AdminMaquina> items;
+    private double lat;
+    private double lon;
+    private UsuarioDetalle usuario;
 
     public AdminParque(Integer id, String estado, String rubro, List<AdminMaquina> items){
         this.id = id;
@@ -26,6 +31,8 @@ public class AdminParque implements Parcelable{
         rubro = in.readString();
         estado = in.readString();
         items = in.createTypedArrayList(AdminMaquina.CREATOR);
+        lat = in.readDouble();
+        lon = in.readDouble();
     }
 
     @Override
@@ -34,6 +41,8 @@ public class AdminParque implements Parcelable{
         dest.writeString(rubro);
         dest.writeString(estado);
         dest.writeTypedList(items);
+        dest.writeDouble(lat);
+        dest.writeDouble(lon);
     }
 
     public static final Creator<AdminParque> CREATOR = new Creator<AdminParque>() {
@@ -47,11 +56,6 @@ public class AdminParque implements Parcelable{
             return new AdminParque[size];
         }
     };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
     public Integer getId() {
         return id;
@@ -67,5 +71,34 @@ public class AdminParque implements Parcelable{
 
     public List<AdminMaquina> getItems() {
         return items;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public UsuarioDetalle getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UsuarioDetalle usuario) {
+        this.usuario = usuario;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

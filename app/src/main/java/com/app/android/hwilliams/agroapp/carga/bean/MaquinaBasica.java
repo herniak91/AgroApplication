@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.app.android.hwilliams.agroapp.R;
 import com.app.android.hwilliams.agroapp.activity.Carga;
+import com.app.android.hwilliams.agroapp.activity.detalle.MaquinaDetalle;
 import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
 import com.app.android.hwilliams.agroapp.carga.parcelable.MarcaParcelable;
 
@@ -40,6 +41,7 @@ public class MaquinaBasica extends LinearLayout{
         marca = (AutoCompleteTextView) mainView.findViewById(R.id.carga_item_marca);
         modelo = (AutoCompleteTextView) mainView.findViewById(R.id.carga_item_modelo);
         imagenCarga = (Button) mainView.findViewById(R.id.carga_imagen_action);
+        imagenCarga.setVisibility(GONE);
         imagenCancel = (ImageButton) mainView.findViewById(R.id.carga_imagen_cancel);
         imageDir = (TextView) mainView.findViewById(R.id.carga_item_image_dir);
 
@@ -100,6 +102,12 @@ public class MaquinaBasica extends LinearLayout{
         });
     }
 
+    public MaquinaBasica(Context context, LayoutInflater inflater, int layoutId, final MaquinaParcelable maquina, MaquinaDetalle maquinaDetalle) {
+        this(context,inflater,layoutId,maquina);
+        marca.setText(maquinaDetalle.getMarca());
+        modelo.setText(maquinaDetalle.getModelo());
+    }
+
     private void starImageSelection(int pos){
         if(opcionesImagen[pos].toString().equalsIgnoreCase("Galeria")){
             ((Carga)contexto).selectPicture(imageDir,imagenCancel);
@@ -124,4 +132,7 @@ public class MaquinaBasica extends LinearLayout{
         return modelo.getText().toString();
     }
 
+    public String getImageDir() {
+        return imageDir.getText().toString();
+    }
 }

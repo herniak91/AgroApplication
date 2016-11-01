@@ -6,6 +6,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
 import com.app.android.hwilliams.agroapp.R;
+import com.app.android.hwilliams.agroapp.activity.detalle.MaquinaDetalle;
 import com.app.android.hwilliams.agroapp.carga.parcelable.MaquinaParcelable;
 
 /**
@@ -21,6 +22,14 @@ public class Laboreo extends MaquinaBasica {
         tipoTrabajo.setAdapter(adapter);
     }
 
+    public Laboreo(Context context, LayoutInflater inflater, MaquinaParcelable maquina,  MaquinaDetalle maquinaDetalle) {
+        super(context, inflater,R.layout.carga_maquina_laboreo, maquina, maquinaDetalle);
+        tipoTrabajo = (AutoCompleteTextView) mainView.findViewById(R.id.carga_item_tipoTrabajo);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,android.R.layout.simple_dropdown_item_1line, maquina.getTiposTrabajo());
+        tipoTrabajo.setAdapter(adapter);
+        tipoTrabajo.setText(maquinaDetalle.getTipoTrabajo());
+    }
+
     @Override
     public boolean isMissingInformation() {
         return super.isMissingInformation() && "".equalsIgnoreCase(tipoTrabajo.getText().toString());
@@ -28,5 +37,9 @@ public class Laboreo extends MaquinaBasica {
 
     public String getTipoTrabajo() {
         return tipoTrabajo.getText().toString();
+    }
+
+    public void setTipoTrabajo(String tipo){
+        tipoTrabajo.setText(tipo);
     }
 }

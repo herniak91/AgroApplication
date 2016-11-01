@@ -1,9 +1,14 @@
 package com.app.android.hwilliams.agroapp.util;
 
-import android.graphics.Typeface;
-import android.view.Gravity;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.android.hwilliams.agroapp.R;
@@ -13,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,62 +54,104 @@ public class CotizacionesUtils {
         return list;
     }
 
-    public static void populateRows(TableLayout tableCotizaciones, String stringExtra, Map<String, List<TableRow>> rowMap) {
-        TableRow.LayoutParams rowLayout = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.FILL_PARENT);
-        TableRow.LayoutParams cellLayout = new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 1);
-        TableRow.LayoutParams indicadorCellLayout = new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT, 2);
+    public static void populateRowsInformacion(LinearLayout tableInformacion, String stringExtra, LayoutInflater inflater, Context context){
+        try {
+            JSONArray array = new JSONArray(stringExtra);
+            for (int i = 0; i < array.length(); i++){
+                JSONObject cereal = array.getJSONObject(i);
+                String nombre = cereal.getString("nombre");
+                //Se agrega cereal
+                RelativeLayout cerealView = (RelativeLayout) inflater.inflate(R.layout.cotizaciones_cereal, null);
+                cerealView.setPadding(10,0,4,0);
 
+                TextView cerealText = (TextView) cerealView.findViewById(R.id.grano);
+                cerealText.setBackgroundColor(Color.parseColor("#F2F7D5"));
+                cerealText.setMinHeight(25);
+                cerealText.setText(nombre);
+
+                LinearLayout cerealCotizaciones = (LinearLayout) cerealView.findViewById(R.id.container_mercados);
+                cerealCotizaciones.setPadding(4,0,4,0);
+ //               cerealCotizaciones.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1));
+                agregarCeldaInformacion(cerealCotizaciones, inflater, "QQ / Ha", "$ / Ha");
+                JSONArray quintalesHectarea = cereal.getJSONArray("qqhaes");
+                for (int j=0; j < quintalesHectarea.length(); j++){
+                    JSONObject cot = quintalesHectarea.getJSONObject(j);
+                    String qqha = cot.getString("qqha");
+                    Double precio = cot.getDouble("precio");
+                    // Se agrega precio
+                    agregarCeldaInformacion(cerealCotizaciones, inflater, qqha, String.valueOf(precio));
+                }
+                tableInformacion.addView(cerealView);
+            }
+
+        }catch(JSONException e){
+
+        }
+
+    }
+
+    private static void agregarCeldaInformacion(LinearLayout cerealCotizaciones, LayoutInflater inflater, String qqha, String precio){
+        LinearLayout cotView = (LinearLayout) inflater.inflate(R.layout.tab_informacion_cotizacion, null);
+        cotView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1));
+        ((TextView)cotView.findViewById(R.id.qqha)).setText(qqha);
+        ((TextView)cotView.findViewById(R.id.precio)).setText(precio);
+
+        cerealCotizaciones.addView(cotView);
+    }
+
+    public static void populateRowsCotizaciones(LinearLayout tableCotizaciones, String stringExtra, LayoutInflater inflater, Context context) {
+        Map<String, List<Cotizacion>> map = new HashMap<>();
         try {
             JSONArray array = new JSONArray(stringExtra);
             for (int i = 0; i < array.length(); i++){
                 JSONObject cotiz = (JSONObject) array.get(i);
-                TableRow row = new TableRow(tableCotizaciones.getContext());
-                row.setLayoutParams(rowLayout);
-                // grano
-                TextView nombre = new TextView(row.getContext());
-                nombre.setEnabled(false);
-                nombre.setTextAppearance(row.getContext(), android.R.style.TextAppearance_Large);
-                nombre.setTypeface(nombre.getTypeface(), Typeface.BOLD);
-                nombre.setGravity(Gravity.CENTER);
-                nombre.setLayoutParams(cellLayout);
-                nombre.setText(cotiz.getString("nombre"));
-                row.addView(nombre);
-                // valor
-                TextView valor = new TextView(row.getContext());
-                valor.setEnabled(false);
-                valor.setTextAppearance(row.getContext(), android.R.style.TextAppearance_Medium);
-                valor.setLayoutParams(cellLayout);
-                valor.setGravity(Gravity.CENTER);
-                valor.setText(cotiz.getString("valor"));
-                row.addView(valor);
-                // variacion
-                TextView variacion = new TextView(row.getContext());
-                variacion.setEnabled(false);
-                variacion.setTextAppearance(row.getContext(), android.R.style.TextAppearance_Medium);
-                variacion.setLayoutParams(cellLayout);
-                variacion.setGravity(Gravity.CENTER);
-                variacion.setText(cotiz.getString("variacion"));
-                row.addView(variacion);
-                // indicador variacion
-                TextView indicador = new TextView(row.getContext());
-                indicador.setEnabled(false);
-                indicador.setTextAppearance(row.getContext(), android.R.style.TextAppearance_Medium);
-                indicador.setLayoutParams(indicadorCellLayout);
-                indicador.setGravity(Gravity.CENTER);
-                indicador.setText(cotiz.getString("indicador"));
-                row.addView(indicador);
 
-                // mercado
-                String mercado = cotiz.getString("mercado");
-                if(!rowMap.containsKey(mercado))
-                    rowMap.put(mercado, new ArrayList<TableRow>());
-                rowMap.get(mercado).add(row);
+                Cotizacion cot = new Cotizacion();
+                cot.nombre = cotiz.getString("nombre");
+                cot.valor = cotiz.getString("valor");
+                cot.variacion = cotiz.getString("variacion");
+                cot.indicador = cotiz.getString("indicador");
+                cot.mercado = cotiz.getString("mercado");
 
-                tableCotizaciones.addView(row);
+                if(map.get(cot.nombre) == null)
+                    map.put(cot.nombre, new ArrayList<Cotizacion>());
+
+                map.get(cot.nombre).add(cot);
             }
-        } catch (JSONException e) {
 
+            for (Map.Entry<String, List<Cotizacion>> entry : map.entrySet()) {
+                RelativeLayout main = (RelativeLayout) inflater.inflate(R.layout.cotizaciones_cereal, null);
+                TextView cereal = (TextView) main.findViewById(R.id.grano);
+                cereal.setBackgroundColor(Color.parseColor("#F2F7D5"));
+                cereal.setMinHeight(25);
+                cereal.setText(entry.getKey());
+
+                LinearLayout container = (LinearLayout) main.findViewById(R.id.container_mercados);
+                for (Cotizacion cot : entry.getValue()) {
+                    LinearLayout frame = new LinearLayout(context);
+                    frame.setOrientation(LinearLayout.VERTICAL);
+                    frame.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,1));
+                    frame.addView(createLabel(cot.mercado, context));
+                    frame.addView(createLabel(cot.valor, context));
+                    frame.addView(createLabel(cot.variacion, context));
+
+                    container.addView(frame);
+                }
+                tableCotizaciones.addView(main);
+            }
+
+        } catch (JSONException e) {
         }
+    }
+
+    private static TextView createLabel(String content, Context context){
+        TextView label = new TextView(context);
+        label.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            label.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        }
+        label.setText(content);
+        return label;
     }
 
 }

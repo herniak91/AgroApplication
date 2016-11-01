@@ -1,16 +1,23 @@
 package com.app.android.hwilliams.agroapp.util;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.zetterstrom.com.forecast.models.DataPoint;
+import android.zetterstrom.com.forecast.models.Icon;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Created by Hernan on 7/23/2016.
@@ -109,14 +116,24 @@ public class ClimaUtils {
         if (tempMin.equalsIgnoreCase("") || tempMax.equalsIgnoreCase("")){
             view.setVisibility(View.GONE);
         }else{
-            view.setText(tempMin + " - " + tempMax);
+            view.setText("Mínima: " + tempMin + " - Máxima : " + tempMax);
         }
     }
 
-    public static void setUpDay(TextView dia1Dia, TextView diaTemp, Calendar cal, DataPoint day){
-        dia1Dia.setText(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.US ));
+    public static void setUpDay(TextView dia, TextView diaTemp, Calendar cal, DataPoint day, ImageView icon, Map<String, Integer> iconosMap, Resources resources){
+        dia.setText(cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.US ));
         String min = ClimaUtils.getTemperatureValue(day.getTemperatureMin(), day.getApparentTemperatureMin());
         String max = ClimaUtils.getTemperatureValue(day.getTemperatureMax(), day.getApparentTemperatureMax());
-        ClimaUtils.checkTempMinMaxVisibility(diaTemp, min, max);
+        if (min.equalsIgnoreCase("") || max.equalsIgnoreCase("")){
+            diaTemp.setVisibility(View.GONE);
+        }else{
+            diaTemp.setText(min + " - " + max);
+        }
+        if(iconosMap.get(day.getIcon().getText()) != null){
+            Bitmap bMap = BitmapFactory.decodeResource(resources, iconosMap.get(day.getIcon().getText()));
+            Bitmap bMapScaled = Bitmap.createScaledBitmap(bMap, icon.getWidth(), icon.getWidth(), true);
+            icon.setImageBitmap(bMapScaled);
+        }
     }
+
 }
